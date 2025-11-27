@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 interface ChatTabProps {
   broker: any;
@@ -8,17 +7,18 @@ interface ChatTabProps {
   setMessage: (message: string) => void;
 }
 
-export default function ChatTab({ 
-  broker, 
-  selectedProvider, 
-  message, 
-  setMessage 
+export default function ChatTab({
+  broker,
+  selectedProvider,
+  message,
+  setMessage,
 }: ChatTabProps) {
-
   const [messages, setMessages] = useState<any[]>([]);
   const [inputMessage, setInputMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [verifyingMessageId, setVerifyingMessageId] = useState<string | null>(null);
+  const [verifyingMessageId, setVerifyingMessageId] = useState<string | null>(
+    null
+  );
 
   // 重置消息历史
   useEffect(() => {
@@ -37,7 +37,9 @@ export default function ChatTab({
     setLoading(true);
 
     try {
-      const metadata = await broker.inference.getServiceMetadata(selectedProvider.address);
+      const metadata = await broker.inference.getServiceMetadata(
+        selectedProvider.address
+      );
       const headers = await broker.inference.getRequestHeaders(
         selectedProvider.address,
         JSON.stringify([userMsg])
@@ -56,12 +58,12 @@ export default function ChatTab({
 
       console.log("账户信息:", account);
       console.log("账户信息:", account.balance);
-      if (account.balance <= BigInt(1.5e18)) {
+      if (account.balance <= BigInt(0.001e18)) {
         console.log("子账户余额不足，正在充值...");
         await broker.ledger.transferFund(
           selectedProvider.address,
           "inference",
-          BigInt(2e18)
+          BigInt(0.01e18)
         );
       }
 
@@ -82,26 +84,24 @@ export default function ChatTab({
         id: result.id,
         verified: false,
       };
-      
+
       setMessages((prev) => [...prev, aiMsg]);
 
       // 处理验证和计费
       if (result.id) {
         setVerifyingMessageId(result.id);
         setMessage("正在验证响应...");
-        
+
         try {
           await broker.inference.processResponse(
             selectedProvider.address,
             aiMsg.content,
             result.id
           );
-          
-          setMessages((prev) => 
-            prev.map(msg => 
-              msg.id === result.id 
-                ? { ...msg, verified: true }
-                : msg
+
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === result.id ? { ...msg, verified: true } : msg
             )
           );
           setMessage("响应验证成功");
@@ -109,9 +109,9 @@ export default function ChatTab({
           console.error("验证失败:", verifyErr);
           setMessage("响应验证失败");
           // 标记验证失败
-          setMessages((prev) => 
-            prev.map(msg => 
-              msg.id === result.id 
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === result.id
                 ? { ...msg, verified: false, verifyError: true }
                 : msg
             )
@@ -122,10 +122,14 @@ export default function ChatTab({
         }
       }
     } catch (err) {
-      setMessages((prev) => [...prev, { 
-        role: "assistant", 
-        content: "错误: " + (err instanceof Error ? err.message : String(err))
-      }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content:
+            "错误: " + (err instanceof Error ? err.message : String(err)),
+        },
+      ]);
     }
     setLoading(false);
   };
@@ -145,7 +149,7 @@ export default function ChatTab({
       <div style={{ marginBottom: "10px", fontSize: "14px", color: "#666" }}>
         当前服务: {selectedProvider.name} - {selectedProvider.model}
       </div>
-      
+
       <div
         style={{
           height: "300px",
@@ -162,18 +166,29 @@ export default function ChatTab({
         ) : (
           messages.map((msg, i) => (
             <div key={i} style={{ marginBottom: "10px" }}>
-              <strong>{msg.role === "user" ? "你" : "AI"}:</strong> {msg.content}
+              <strong>{msg.role === "user" ? "你" : "AI"}:</strong>{" "}
+              {msg.content}
               {msg.role === "assistant" && msg.id && (
-                <span style={{ 
-                  marginLeft: "10px", 
-                  fontSize: "12px",
-                  color: msg.verifyError ? "#dc3545" : 
-                         msg.verified ? "#28a745" : 
-                         verifyingMessageId === msg.id ? "#ffc107" : "#6c757d"
-                }}>
-                  {msg.verifyError ? "❌ 验证失败" :
-                   msg.verified ? "✓ 已验证" : 
-                   verifyingMessageId === msg.id ? "⏳ 验证中..." : "⚠️ 未验证"}
+                <span
+                  style={{
+                    marginLeft: "10px",
+                    fontSize: "12px",
+                    color: msg.verifyError
+                      ? "#dc3545"
+                      : msg.verified
+                      ? "#28a745"
+                      : verifyingMessageId === msg.id
+                      ? "#ffc107"
+                      : "#6c757d",
+                  }}
+                >
+                  {msg.verifyError
+                    ? "❌ 验证失败"
+                    : msg.verified
+                    ? "✓ 已验证"
+                    : verifyingMessageId === msg.id
+                    ? "⏳ 验证中..."
+                    : "⚠️ 未验证"}
                 </span>
               )}
             </div>

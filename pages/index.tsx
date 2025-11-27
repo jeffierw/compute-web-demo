@@ -7,6 +7,7 @@ import { BrowserProvider } from "ethers";
 import AccountTab from "../components/AccountTab";
 import ServiceTab from "../components/ServiceTab";
 import ChatTab from "../components/ChatTab";
+import TradingBotTab from "../components/TradingBotTab";
 
 export default function Home() {
   const { isConnected } = useAccount();
@@ -95,6 +96,7 @@ export default function Home() {
           onClick={() => setActiveTab("chat")}
           style={{
             padding: "10px 20px",
+            marginRight: "10px",
             background: activeTab === "chat" ? "#007bff" : "#f0f0f0",
             color: activeTab === "chat" ? "white" : "black",
             border: "none",
@@ -102,6 +104,18 @@ export default function Home() {
           }}
         >
           聊天
+        </button>
+        <button
+          onClick={() => setActiveTab("trading")}
+          style={{
+            padding: "10px 20px",
+            background: activeTab === "trading" ? "#007bff" : "#f0f0f0",
+            color: activeTab === "trading" ? "white" : "black",
+            border: "none",
+            cursor: "pointer",
+          }}
+        >
+          交易机器人
         </button>
       </div>
 
@@ -144,7 +158,16 @@ export default function Home() {
               />
             )}
             
-            {activeTab !== "account" && activeTab !== "service" && activeTab !== "chat" && (
+            {activeTab === "trading" && (
+              <TradingBotTab
+                broker={broker}
+                selectedProvider={selectedProvider}
+                message={message}
+                setMessage={setMessage}
+              />
+            )}
+            
+            {activeTab !== "account" && activeTab !== "service" && activeTab !== "chat" && activeTab !== "trading" && (
               <div>
                 <p>当前标签: {activeTab}</p>
                 <p>其他功能待添加...</p>
