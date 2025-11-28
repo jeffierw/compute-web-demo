@@ -159,14 +159,19 @@ ${klineData
         );
         account = await broker.inference.getAccount(selectedProvider.address);
       }
-      console.log("account余额：", account, account.balance);
+      console.log(
+        "account余额：",
+        account,
+        account.balance,
+        selectedProvider.address
+      );
 
       if (account.balance <= BigInt(0.22e18)) {
         console.log("子账户余额不足，正在充值...");
         await broker.ledger.transferFund(
           selectedProvider.address,
           "inference",
-          BigInt(0.05e18)
+          BigInt(1e18)
         );
       }
 

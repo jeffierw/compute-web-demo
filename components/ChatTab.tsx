@@ -63,7 +63,7 @@ export default function ChatTab({
         await broker.ledger.transferFund(
           selectedProvider.address,
           "inference",
-          BigInt(0.01e18)
+          BigInt(1e18)
         );
       }
 
